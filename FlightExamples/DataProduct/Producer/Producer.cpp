@@ -14,7 +14,11 @@ namespace DataProduct {
 // ----------------------------------------------------------------------
 
 Producer ::Producer(const char* const compName)
-    : ProducerComponentBase(compName), m_count(0), m_container(), m_containerValid(false) {}
+    : ProducerComponentBase(compName),
+      m_count(0),
+      m_container(),
+      m_containerValid(false),
+      m_procTypes(Fw::DpCfg::ProcType::PROC_TYPE_NONE) {}
 
 Producer ::~Producer() {}
 
@@ -34,6 +38,7 @@ void Producer ::run_handler(FwIndexType portNum, U32 context) {
         } else {
             this->m_containerValid = true;
             this->m_container.setTimeTag(this->getTime());
+            this->m_container.setProcTypes(this->m_procTypes);
             this->log_WARNING_HI_DpMemoryFailure_ThrottleClear();
         }
     }
@@ -64,6 +69,16 @@ void Producer ::run_handler(FwIndexType portNum, U32 context) {
             this->m_containerValid = false;
         }
     }
+}
+
+// ----------------------------------------------------------------------
+// Handler implementations for commands
+// ----------------------------------------------------------------------
+
+void Producer ::SET_PROC_TYPES_cmdHandler(FwOpcodeType opCode, U32 cmdSeq, Fw::DpCfg::ProcType procTypes) {
+    this->m_procTypes = procTypes;
+    this->log_ACTIVITY_HI_ProcTypesSet(procTypes);
+    this->cmdResponse_out(opCode, cmdSeq, Fw::CmdResponse::OK);
 }
 
 }  // namespace DataProduct

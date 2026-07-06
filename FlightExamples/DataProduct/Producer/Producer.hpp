@@ -9,6 +9,8 @@
 
 #include "DataProduct/Producer/ProducerComponentAc.hpp"
 
+#include "config/ProcTypeEnumAc.hpp"
+
 namespace DataProduct {
 
 class Producer final : public ProducerComponentBase {
@@ -38,9 +40,23 @@ class Producer final : public ProducerComponentBase {
                      ) override;
 
   private:
-    FwSizeType m_count;       //!< Count of serialized records
-    DpContainer m_container;  //!< Data product container (currently allocated)
-    bool m_containerValid;    //!< Whether the container is valid
+    // ----------------------------------------------------------------------
+    // Handler implementations for commands
+    // ----------------------------------------------------------------------
+
+    //! Handler implementation for command SET_PROC_TYPES
+    //!
+    //! Command to set the processing types applied to future data product containers
+    void SET_PROC_TYPES_cmdHandler(FwOpcodeType opCode,           //!< The opcode
+                                   U32 cmdSeq,                    //!< The command sequence number
+                                   Fw::DpCfg::ProcType procTypes  //!< The processing types
+                                   ) override;
+
+  private:
+    FwSizeType m_count;               //!< Count of serialized records
+    DpContainer m_container;          //!< Data product container (currently allocated)
+    bool m_containerValid;            //!< Whether the container is valid
+    Fw::DpCfg::ProcType m_procTypes;  //!< Processing types applied to data product containers
 };
 
 }  // namespace DataProduct

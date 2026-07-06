@@ -26,6 +26,7 @@ module ExamplesDeployment {
   # ----------------------------------------------------------------------
     import CdhCore.Subtopology
     import DataProducts.Subtopology
+    import DpCompression.Subtopology
     import FileHandling.Subtopology
 
     # Project-defined
@@ -157,6 +158,7 @@ module ExamplesDeployment {
       rateGroupDriver.CycleOut[Ports_RateGroups.rateGroup3] -> rateGroup3.CycleIn
       rateGroup3.RateGroupMemberOut[0] -> CdhCore.$health.Run
       rateGroup3.RateGroupMemberOut[1] -> commsBufferManager.schedIn
+      rateGroup3.RateGroupMemberOut[2] -> DpCompression.dpZLibCompressorBufferManager.schedIn
     }
 
     connections CdhCore_cmdSeq {
@@ -175,6 +177,11 @@ module ExamplesDeployment {
         dpProducer.productGetOut  -> DataProducts.dpMgr.productGetIn
         dpProducer.productSendOut -> DataProducts.dpMgr.productSendIn
         rateGroup1.RateGroupMemberOut[5] -> dpProducer.run
+    }
+
+    # DpCompression subtopology connections
+    connections DpCompression {
+        DataProducts.dpWriter.procBufferSendOut[0] -> DpCompression.dpCompressProc.procRequest
     }
 
     connections ExamplesDeployment {
