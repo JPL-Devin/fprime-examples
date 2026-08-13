@@ -4,8 +4,7 @@ import time
 def send_and_assert_manager_event(fprime_test_api, command, event, timeout=5):
     """ Send a command and assert its event and completion independently
 
-    Manager is an active component, so its events race with the dispatcher's OpCodeDispatched event
-    and cannot be asserted as an ordered sequence (as send_and_assert_command does).
+    Manager is active, so its events race with cmdDisp.OpCodeDispatched and cannot be ordered.
     """
     start = fprime_test_api.event_history.size()
     command_id = fprime_test_api.translate_command_name(command)
