@@ -5,6 +5,11 @@ from fprime_gds.common.testing_fw import predicates
 
 
 def send_and_assert_manager_event(fprime_test_api, command, event, timeout=5):
+    """ Send a command and assert its event and completion independently
+
+    Manager is an active component, so its events race with the dispatcher's OpCodeDispatched event
+    and cannot be asserted as an ordered sequence (as send_and_assert_command does).
+    """
     start = fprime_test_api.event_history.size()
     command_id = fprime_test_api.translate_command_name(command)
     fprime_test_api.send_command(command)
@@ -19,6 +24,7 @@ def send_and_assert_manager_event(fprime_test_api, command, event, timeout=5):
 
 @pytest.fixture(autouse=True)
 def return_manager_to_idle(fprime_test_api):
+    """ Best-effort return to an idle worker so a failing test cannot cascade into the next """
     yield
     try:
         start = fprime_test_api.event_history.size()
