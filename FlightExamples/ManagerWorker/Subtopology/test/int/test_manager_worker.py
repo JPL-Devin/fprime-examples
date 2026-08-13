@@ -1,8 +1,5 @@
 import time
 
-import pytest
-from fprime_gds.common.testing_fw import predicates
-
 
 def send_and_assert_manager_event(fprime_test_api, command, event, timeout=5):
     """ Send a command and assert its event and completion independently
@@ -22,28 +19,6 @@ def send_and_assert_manager_event(fprime_test_api, command, event, timeout=5):
     )
 
 
-@pytest.fixture(autouse=True)
-def return_manager_to_idle(fprime_test_api):
-    """ Best-effort return to an idle worker so a failing test cannot cascade into the next """
-    yield
-    try:
-        start = fprime_test_api.event_history.size()
-        fprime_test_api.send_command("ManagerWorker.manager.STOP")
-        idle_event = predicates.satisfies_any(
-            [
-                fprime_test_api.get_event_pred("ManagerWorker.manager.WorkerCanceled"),
-                fprime_test_api.get_event_pred("ManagerWorker.manager.WorkerDone"),
-            ]
-        )
-        fprime_test_api.assert_event(
-            idle_event,
-            start=start,
-            timeout=2,
-        )
-    except Exception:
-        pass
-
-
 def test_manager_start_receive_work(fprime_test_api):
     """ Test that the manager can start and complete work """
     send_and_assert_manager_event(
@@ -51,7 +26,6 @@ def test_manager_start_receive_work(fprime_test_api):
     )
     # Worker runs for ~5 seconds
     fprime_test_api.assert_event("ManagerWorker.manager.WorkerDone", timeout=6)
-
 
 
 def test_manager_cancel_work(fprime_test_api):
